@@ -21,13 +21,13 @@
                 </tbody>
             </table>
         </div>
-        <table class="table-panel-table" style="font-size:{{ctrl.panel.font_size || '1rem'}}">
+        <table class="table-panel-table" style="font-size:{{ctrl.panel.header_font_size || '1rem'}};{{ctrl.outdata.table_width}}">
             <thead id="boomtable_output_body_headers" data-ng-if="ctrl.panel.hide_headers !== true">
                 <tr>
-                    <th data-ng-if="ctrl.panel.hide_first_column !== true" ng-click="ctrl.sortByHeader(-1)" style="color:rgb(17, 168, 205);text-align:{{ctrl.panel.text_alignment_firstcolumn}};padding:2px" ng-bind="ctrl.panel.default_title_for_rows">
+                    <th data-ng-if="ctrl.panel.hide_first_column !== true" ng-click="ctrl.sortByHeader(-1)" style="color:rgb(17, 168, 205);text-align:{{ctrl.panel.text_alignment_firstcolumn}};{{ctrl.outdata.header_unit_styles}}" ng-bind="ctrl.panel.default_title_for_rows">
                     </th>
-                    <th ng-repeat="col in ctrl.outdata.cols_found track by $index" ng-click="ctrl.sortByHeader($index)" style="color:rgb(17, 168, 205);text-align:{{ctrl.panel.text_alignment_header}};padding:4px">
-                        <span ng-bind-html="col"></span>
+                    <th ng-repeat="col in ctrl.outdata.show_cols track by $index" ng-click="ctrl.sortByHeader($index)" style="color:rgb(17, 168, 205);text-align:{{ctrl.panel.text_alignment_header}};">
+                        <span ng-bind-html="col" style="{{ctrl.outdata.header_unit_styles}}"></span>
                     </th>
                 </tr>
             </thead>

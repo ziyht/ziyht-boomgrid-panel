@@ -137,26 +137,38 @@
                 <div class="section gf-form-group">
                     <div class="gr-form-inline">
                         <div class="gf-form">
-                            <h6 class="text-header">Fixed Col Settings</h6>
+                            <h6 class="text-header">Fixed Column Settings</h6>
                         </div>
                     </div>
                     <div class="gr-form-inline">
                         <div class="gf-form">
                             <button type="button" class="btn btn-success btn-medium"
                                 ng-click="pattern.add_fixed_col(); ctrl.render();">Add
-                                Fixed Col</button>
+                                Fixed Column</button>
                         </div>
                     </div>
                     <div>
-                        <div class="gr-form-inline" ng-repeat="row in pattern.fixed_cols track by $index">
+                        <div class="gr-form-inline" ng-repeat="col in pattern.fixed_cols track by $index">
                             <div class="gf-form">
                                 <label class="gf-form-label width-4">name</label>
-                                <input type="text" class="gf-form-input width-8" placeholder="Name" ng-model="row.name"
-                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();">
+                                <input type="text" class="gf-form-input width-4" placeholder="Name" ng-model="col.name"
+                                    ng-blur="ctrl.render()">
                                 <span class="mini-split"></span>
-                                <label class="gf-form-label width-4">match</label>
-                                <input type="text" class="gf-form-input width-8" placeholder="" ng-model="row.match"
-                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" bs-tooltip="'Not used now'">
+                                <label class="gf-form-label width-4">order</label>
+                                <input type="text" class="gf-form-input width-4" placeholder="" ng-model="col.order"
+                                    ng-blur="ctrl.render()">
+                                <span class="mini-split"></span>
+                                <label class="gf-form-label width-5">show as</label>
+                                <input type="text" class="gf-form-input width-4" placeholder="" ng-model="col.show"
+                                    ng-blur="ctrl.render()">
+                                <span class="mini-split"></span>
+                                <label class="gf-form-label width-5">BG color</label>
+                                <input type="text" class="gf-form-input width-4" placeholder="" ng-model="col.bg_color"
+                                    ng-blur="ctrl.render()">
+                                <span class="mini-split"></span>
+                                <label class="gf-form-label width-5">text color</label>
+                                <input type="text" class="gf-form-input width-4" placeholder="" ng-model="col.text_color"
+                                    ng-blur="ctrl.render()">
                                 <span class="mini-split"></span>
                                 <button type="button" class="btn btn-danger btn-small" ng-click="pattern.remove_fixed_col($index); ctrl.render(); ">X</button>
                             </div>
@@ -590,16 +602,16 @@
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">Debug</label>
-                                <input type="checkbox" class="width-4" ng-model="ctrl.panel.debug_mode" ng-blur="ctrl.render()" ng-change="ctrl.render()">
+                                <label class="gf-form-label width-16">Debug</label>
+                                <input type="checkbox" class="width-2" ng-model="ctrl.panel.debug_mode" ng-blur="ctrl.render()" ng-change="ctrl.render()">
                             </div>
                         </div>
                     </div>
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">Default Title for rows</label>
-                                <input type="text" placeholder="Metric" class="gf-form-input width-18" ng-model="ctrl.panel.default_title_for_rows" bs-tooltip="'Panel rows title'"
+                                <label class="gf-form-label width-16">Default Title for rows</label>
+                                <input type="text" placeholder="Metric" class="gf-form-input width-10" ng-model="ctrl.panel.default_title_for_rows" bs-tooltip="'Panel rows title'"
                                     ng-blur="ctrl.render()" data-ng-change="ctrl.render();">
                             </div>
                         </div>
@@ -607,8 +619,8 @@
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">Default Title for columns</label>
-                                <input type="text" placeholder="Value" class="gf-form-input width-18" ng-model="ctrl.panel.defaultPattern.col_name" bs-tooltip="'Panel cols title'"
+                                <label class="gf-form-label width-16">Default Title for columns</label>
+                                <input type="text" placeholder="Value" class="gf-form-input width-10" ng-model="ctrl.panel.defaultPattern.col_name" bs-tooltip="'Panel cols title'"
                                     ng-blur="ctrl.render()" data-ng-change="ctrl.render();">
                             </div>
                         </div>
@@ -616,33 +628,80 @@
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">Row / Column indentification wrapper</label>
-                                <input type="text" placeholder="Value" class="gf-form-input width-18" ng-model="ctrl.panel.row_col_wrapper" bs-tooltip="'Default is _'"
+                                <label class="gf-form-label width-16">Row/Column indentification wrapper</label>
+                                <input type="text" placeholder="Value" class="gf-form-input width-10" ng-model="ctrl.panel.row_col_wrapper" bs-tooltip="'Default is _'"
                                     ng-blur="ctrl.render()" data-ng-change="ctrl.render();">
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="editor-row">
+                <div class="section gf-form-group">
+                    <div class="gr-form-inline">
+                        <div class="gf-form">
+                            <h6 class="text-header">Header</h6>
+                        </div>
+                    </div>
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">Hide First Column</label>
-                                <input type="checkbox" class="width-4" ng-model="ctrl.panel.hide_first_column" ng-blur="ctrl.render()" ng-change="ctrl.render()">
+                                <label class="gf-form-label width-16">Hide</label>
+                                <input type="checkbox" class="width-2" ng-model="ctrl.panel.hide_headers" ng-blur="ctrl.render()" ng-change="ctrl.render()">
                             </div>
                         </div>
                     </div>
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">Hide Headers</label>
-                                <input type="checkbox" class="width-4" ng-model="ctrl.panel.hide_headers" ng-blur="ctrl.render()" ng-change="ctrl.render()">
+                                <label class="gf-form-label width-16">Font Size</label>
+                                <input type="text" placeholder="12px/1.2rem" class="gf-form-input width-10" ng-model="ctrl.panel.header_font_size" bs-tooltip="'Font size ( ex: 1.2rem / 12px )'" ng-blur="ctrl.render();">
                             </div>
                         </div>
                     </div>
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">Columns Sort Type</label>
-                                <input type="text" placeholder="asc/desc" class="gf-form-input width-18" ng-model="ctrl.panel.cols_sort_type" bs-tooltip="'Default is asc'"
+                                <label class="gf-form-label width-16">Font Scale</label>
+                                <input type="text" placeholder="need > 0" class="gf-form-input width-10" ng-model="ctrl.panel.header_font_scale" bs-tooltip="''" ng-blur="ctrl.render();">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gf-form">
+                        <div class="gr-form-inline">
+                            <div class="gf-form">
+                                <label class="gf-form-label width-16">Unit Width </label>
+                                <input type="text" placeholder="Number" class="gf-form-input width-10" ng-model="ctrl.panel.header_unit_width" bs-tooltip="'unit:px, >=0 is valid'"
+                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" data-min-length=0 data-items=100 ng-model-onblur
+                                    data-placement="right">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gf-form">
+                        <div class="gr-form-inline">
+                            <div class="gf-form">
+                                <label class="gf-form-label width-16">Unit Height</label>
+                                <input type="text" placeholder="Number" class="gf-form-input width-10" ng-model="ctrl.panel.header_unit_height" bs-tooltip="'unit:px, >=0 is valid'"
+                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" data-min-length=0 data-items=100 ng-model-onblur
+                                    data-placement="right">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gf-form">
+                        <div class="gr-form-inline">
+                            <div class="gf-form">
+                                <label class="gf-form-label width-16">Unit Padding</label>
+                                <input type="text" placeholder="Number" class="gf-form-input width-10" ng-model="ctrl.panel.header_unit_padding" bs-tooltip="'unit:px, >=0 is valid'"
+                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" data-min-length=0 data-items=100 ng-model-onblur
+                                    data-placement="right">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gf-form">
+                        <div class="gr-form-inline">
+                            <div class="gf-form">
+                                <label class="gf-form-label width-16">Sort Type</label>
+                                <input type="text" placeholder="asc/desc" class="gf-form-input width-10" ng-model="ctrl.panel.cols_sort_type" bs-tooltip="'Default is asc'"
                                     ng-blur="ctrl.render()" data-ng-change="ctrl.render();" bs-typeahead="ctrl.columnSortTypes" data-min-length=0 data-items=100 ng-model-onblur
                                     data-placement="right">
                             </div>
@@ -651,59 +710,9 @@
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">Text alignment for first column</label>
-                                <input type="text" placeholder="LEFT/RIGHT/CENTER" class="gf-form-input width-18" ng-model="ctrl.panel.text_alignment_firstcolumn" bs-tooltip="'Default is LEFT'"
+                                <label class="gf-form-label width-16">Text alignment</label>
+                                <input type="text" placeholder="LEFT/RIGHT/CENTER" class="gf-form-input width-10" ng-model="ctrl.panel.text_alignment_header" bs-tooltip="'Default is LEFT'"
                                     ng-blur="ctrl.render()" data-ng-change="ctrl.render();" bs-typeahead="ctrl.textAlignmentOptions" data-min-length=0 data-items=100 ng-model-onblur
-                                    data-placement="right">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gf-form">
-                        <div class="gr-form-inline">
-                            <div class="gf-form">
-                                <label class="gf-form-label width-20">Text alignment for values</label>
-                                <input type="text" placeholder="LEFT/RIGHT/CENTER" class="gf-form-input width-18" ng-model="ctrl.panel.text_alignment_values" bs-tooltip="'Default is LEFT'"
-                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" bs-typeahead="ctrl.textAlignmentOptions" data-min-length=0 data-items=100 ng-model-onblur
-                                    data-placement="right">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gf-form">
-                        <div class="gr-form-inline">
-                            <div class="gf-form">
-                                <label class="gf-form-label width-20">Text alignment for table header</label>
-                                <input type="text" placeholder="LEFT/RIGHT/CENTER" class="gf-form-input width-18" ng-model="ctrl.panel.text_alignment_header" bs-tooltip="'Default is LEFT'"
-                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" bs-typeahead="ctrl.textAlignmentOptions" data-min-length=0 data-items=100 ng-model-onblur
-                                    data-placement="right">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gf-form">
-                        <div class="gr-form-inline">
-                            <div class="gf-form">
-                                <label class="gf-form-label width-20">Table unit padding (px) </label>
-                                <input type="text" placeholder="Number" class="gf-form-input width-18" ng-model="ctrl.panel.table_unit_padding" bs-tooltip="'4px'"
-                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" data-min-length=0 data-items=100 ng-model-onblur
-                                    data-placement="right">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gf-form">
-                        <div class="gr-form-inline">
-                            <div class="gf-form">
-                                <label class="gf-form-label width-20">Table unit width (px) </label>
-                                <input type="text" placeholder="Number" class="gf-form-input width-18" ng-model="ctrl.panel.table_unit_width" bs-tooltip="'Default is none'"
-                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" data-min-length=0 data-items=100 ng-model-onblur
-                                    data-placement="right">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gf-form">
-                        <div class="gr-form-inline">
-                            <div class="gf-form">
-                                <label class="gf-form-label width-20">Table unit height (px) </label>
-                                <input type="text" placeholder="Number" class="gf-form-input width-18" ng-model="ctrl.panel.table_unit_height" bs-tooltip="'Default is none'"
-                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" data-min-length=0 data-items=100 ng-model-onblur
                                     data-placement="right">
                             </div>
                         </div>
@@ -714,14 +723,91 @@
                 <div class="section gf-form-group">
                     <div class="gr-form-inline">
                         <div class="gf-form">
-                            <h6 class="text-header">Non matching series</h6>
+                            <h6 class="text-header">Body</h6>
                         </div>
                     </div>
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">Non matching cells text</label>
-                                <input type="text" placeholder="N/A" class="gf-form-input width-18" ng-model="ctrl.panel.non_matching_cells_text" bs-tooltip="'Cell text for the non matching series. Leave blank if you dont need any text'"
+                                <label class="gf-form-label width-16">Hide First Column</label>
+                                <input type="checkbox" class="width-2" ng-model="ctrl.panel.hide_first_column" ng-blur="ctrl.render()" ng-change="ctrl.render()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gf-form">
+                        <div class="gr-form-inline">
+                            <div class="gf-form">
+                                <label class="gf-form-label width-16">Font Size</label>
+                                <input type="text" placeholder="12px/1.2rem" class="gf-form-input width-10" ng-model="ctrl.panel.body_font_size" bs-tooltip="'Font size ( ex: 1.2rem / 12px )'" ng-blur="ctrl.render();">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gf-form">
+                        <div class="gr-form-inline">
+                            <div class="gf-form">
+                                <label class="gf-form-label width-16">Font Scale</label>
+                                <input type="text" placeholder="need >0" class="gf-form-input width-10" ng-model="ctrl.panel.body_font_scale" bs-tooltip="''" ng-blur="ctrl.render();">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gf-form">
+                        <div class="gr-form-inline">
+                            <div class="gf-form">
+                                <label class="gf-form-label width-16">Unit Width </label>
+                                <input type="text" placeholder="Number" class="gf-form-input width-10" ng-model="ctrl.panel.body_unit_width" bs-tooltip="'unit:px, >=0 is valid'"
+                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" data-min-length=0 data-items=100 ng-model-onblur
+                                    data-placement="right">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gf-form">
+                        <div class="gr-form-inline">
+                            <div class="gf-form">
+                                <label class="gf-form-label width-16">Unit Height</label>
+                                <input type="text" placeholder="Number" class="gf-form-input width-10" ng-model="ctrl.panel.body_unit_height" bs-tooltip="'unit:px, >=0 is valid'"
+                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" data-min-length=0 data-items=100 ng-model-onblur
+                                    data-placement="right">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gf-form">
+                        <div class="gr-form-inline">
+                            <div class="gf-form">
+                                <label class="gf-form-label width-16">Unit Padding</label>
+                                <input type="text" placeholder="Number" class="gf-form-input width-10" ng-model="ctrl.panel.body_unit_padding" bs-tooltip="'unit:px, >=0 is valid'"
+                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" data-min-length=0 data-items=100 ng-model-onblur
+                                    data-placement="right">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gf-form">
+                        <div class="gr-form-inline">
+                            <div class="gf-form">
+                                <label class="gf-form-label width-16">Text alignment for first column</label>
+                                <input type="text" placeholder="LEFT/RIGHT/CENTER" class="gf-form-input width-10" ng-model="ctrl.panel.text_alignment_firstcolumn" bs-tooltip="'Default is LEFT'"
+                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" bs-typeahead="ctrl.textAlignmentOptions" data-min-length=0 data-items=100 ng-model-onblur
+                                    data-placement="right">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gf-form">
+                        <div class="gr-form-inline">
+                            <div class="gf-form">
+                                <label class="gf-form-label width-16">Text alignment for values</label>
+                                <input type="text" placeholder="LEFT/RIGHT/CENTER" class="gf-form-input width-10" ng-model="ctrl.panel.text_alignment_values" bs-tooltip="'Default is LEFT'"
+                                    ng-blur="ctrl.render()" data-ng-change="ctrl.render();" bs-typeahead="ctrl.textAlignmentOptions" data-min-length=0 data-items=100 ng-model-onblur
+                                    data-placement="right">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gf-form">
+                            <label class="text-header">Non matching series</label>
+                    </div>
+                    <div class="gf-form">
+                        <div class="gr-form-inline">
+                            <div class="gf-form">
+                                <label class="gf-form-label width-16">Non matching cells text</label>
+                                <input type="text" placeholder="N/A" class="gf-form-input width-10" ng-model="ctrl.panel.non_matching_cells_text" bs-tooltip="'Cell text for the non matching series. Leave blank if you dont need any text'"
                                     ng-blur="ctrl.render()" data-ng-change="ctrl.render();">
                             </div>
                         </div>
@@ -729,8 +815,8 @@
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">Non matching cells BG Color</label>
-                                <input type="text" placeholder="red" class="gf-form-input width-18" ng-model="ctrl.panel.non_matching_cells_color_bg" bs-tooltip="'Cell text for the non matching series. Leave blank if you dont need any text'"
+                                <label class="gf-form-label width-16">Non matching cells BG Color</label>
+                                <input type="text" placeholder="red" class="gf-form-input width-10" ng-model="ctrl.panel.non_matching_cells_color_bg" bs-tooltip="'Cell text for the non matching series. Leave blank if you dont need any text'"
                                     ng-blur="ctrl.render()" data-ng-change="ctrl.render();">
                             </div>
                         </div>
@@ -738,8 +824,8 @@
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">Non matching cells Text Color</label>
-                                <input type="text" placeholder="white" class="gf-form-input width-18" ng-model="ctrl.panel.non_matching_cells_color_text" bs-tooltip="'Cell text for the non matching series. Leave blank if you dont need any text'"
+                                <label class="gf-form-label width-16">Non matching cells Text Color</label>
+                                <input type="text" placeholder="white" class="gf-form-input width-10" ng-model="ctrl.panel.non_matching_cells_color_text" bs-tooltip="'Cell text for the non matching series. Leave blank if you dont need any text'"
                                     ng-blur="ctrl.render()" data-ng-change="ctrl.render();">
                             </div>
                         </div>
@@ -756,24 +842,16 @@
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">First Column Link</label>
-                                <input type="text" placeholder="#" class="gf-form-input width-18" ng-model="ctrl.panel.first_column_link" bs-tooltip="'Link to URL when clicked first column'" formng-blur="ctrl.render()" data-ng-change="ctrl.render();">
+                                <label class="gf-form-label width-16">First Column Link</label>
+                                <input type="text" placeholder="#" class="gf-form-input width-10" ng-model="ctrl.panel.first_column_link" bs-tooltip="'Link to URL when clicked first column'" ng-blur="ctrl.render();">
                             </div>
                         </div>
                     </div>
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">Font Size (in pixels or rems) </label>
-                                <input type="text" placeholder="1.2rem" class="gf-form-input width-18" ng-model="ctrl.panel.font_size" bs-tooltip="'Font size ( ex: 1.2rem / 12px )'" formng-blur="ctrl.render()" data-ng-change="ctrl.render();">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gf-form">
-                        <div class="gr-form-inline">
-                            <div class="gf-form">
-                                <label class="gf-form-label width-20">Hidden Columns </label>
-                                <input type="text" placeholder="1.2rem" class="gf-form-input width-18" ng-model="ctrl.panel.sorting_props.hidden_input" bs-tooltip="ctrl.panel.sorting_props.hidden_cols_str">
+                                <label class="gf-form-label width-16">Hidden Columns </label>
+                                <input type="text" placeholder="" class="gf-form-input width-10" ng-model="ctrl.panel.sorting_props.hidden_input" bs-tooltip="ctrl.panel.sorting_props.hidden_cols_str">
                                 <button class="btn btn-success btn-small" ng-click="ctrl.hiddenCol()"><i class="fa fa-add"></i>Add</button>
                                 <button class="btn btn-danger btn-small"  ng-click="ctrl.unHiddenCol()"><i class="fa fa-trash"></i>Del</button>
                             </div>
@@ -782,8 +860,8 @@
                     <div class="gf-form">
                         <div class="gr-form-inline">
                             <div class="gf-form">
-                                <label class="gf-form-label width-20">Set Sort Column </label>
-                                <input type="text" placeholder="1.2rem" class="gf-form-input width-18" ng-model="ctrl.panel.sorting_props.sort_column" bs-tooltip="ctrl.panel.sorting_props.sort_column" formng-blur="ctrl.render()">
+                                <label class="gf-form-label width-16">Set Sort Column </label>
+                                <input type="text" placeholder="1.2rem" class="gf-form-input width-10" ng-model="ctrl.panel.sorting_props.sort_column" bs-tooltip="ctrl.panel.sorting_props.sort_column" formng-blur="ctrl.render()">
                             </div>
                         </div>
                     </div>

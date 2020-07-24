@@ -2,7 +2,7 @@ import _ from "lodash";
 import { BoomSeries, IBoomCellDetails, IBoomTable, IBoomTableTransformationOptions } from "./boom/index";
 import { BoomPattern, replaceTokens } from './boom/index';
 import { multiValueShowPriorities, columnSortTypes } from './config';
-import { BoomPatternDatas } from './boom/BoomPatternData';
+import { BoomDriver } from './boom/BoomDriver';
 
 const defaultPattern = new BoomPattern({
     bgColors: "green|orange|red",
@@ -31,7 +31,7 @@ const defaultPattern = new BoomPattern({
     valueName: "avg",
 });
 
-const seriesToTable = function (inputdata: BoomSeries[], options: IBoomTableTransformationOptions, patternDatas: BoomPatternDatas): IBoomTable {
+const seriesToTable = function (inputdata: BoomSeries[], options: IBoomTableTransformationOptions, patternDatas: BoomDriver): IBoomTable {
     let rows_found = _.uniq(_.uniq(_.map(inputdata, (d: { row_name: any; }) => d.row_name)).concat(patternDatas.getFixedRows()));
     let rows_without_token = _.uniq(_.map(inputdata, (d: { row_name_raw: any; }) => d.row_name_raw));
     let cols_found: string[] = _.uniq(_.uniq(_.map(inputdata, (d: { col_name: any; }) => d.col_name)).concat(patternDatas.getFixedCols()));

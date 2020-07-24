@@ -3,8 +3,6 @@ import { IBoomFixedRow, IBoomFixedCol, IBoomCustomParsingValue } from "./Boom.in
 
 class BoomFixedRow implements IBoomFixedRow {
     public name: string;
-    public sort_as = "";
-    public match = "";
     constructor(name: string) {
         this.name = name;
     }
@@ -12,10 +10,13 @@ class BoomFixedRow implements IBoomFixedRow {
 
 class BoomFixedCol implements IBoomFixedCol {
     public name: string;
-    public sort_as = "";
-    public show_as = "";
+    public order      = "";
+    public show       = "";
+    public from       = "";
+    public bg_color   = "";
+    public text_color = "";
     constructor(name: string) {
-        this.name = name;
+        this.name  = name;
     }
 }
 
@@ -30,7 +31,6 @@ class BoomPattern implements IBoomPattern {
     public bgColors_overrides: string;
     public clickable_cells_link: string;
     public col_name: string;
-    public col_name_as_fixed_row: boolean;
     public displayTemplate: string;
     public defaultBGColor: string;
     public defaultTextColor: string;
@@ -100,7 +100,6 @@ class BoomPattern implements IBoomPattern {
         this.textColors_overrides = options && options.textColors_overrides ? options.textColors_overrides : "0->red|2->green|1->yellow";
         this.clickable_cells_link = options && options.clickable_cells_link ? options.clickable_cells_link : "";
         this.col_name = options && options.col_name ? options.col_name : this.row_col_wrapper + "1" + this.row_col_wrapper;
-        this.col_name_as_fixed_row = false;
         this.decimals = options && options.decimals ? options.decimals : 2;
         this.delimiter = options && options.delimiter ? options.delimiter : ".";
         this.displayTemplate = options && options.displayTemplate ? options.displayTemplate : "_value_";

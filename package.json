@@ -1,6 +1,6 @@
 {
   "name": "ziyht-boomgrid-panel",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Boom table panel for Graphite, InfluxDB, Prometheus",
   "main": "dist/module.js",
   "scripts": {

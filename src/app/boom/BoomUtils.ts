@@ -145,10 +145,29 @@ const getItemBasedOnThreshold = function (thresholds, ranges, value, defaultValu
     return c;
 
 };
+const boomSortFunc = function (a: string|number, b: string|number, sortMethod: string) {
+    let na = Number(a);
+    let nb = Number(b);
+    let iv = sortMethod === "asc" ? 1 : -1;
+    if ( isNaN(na) ){
+        if ( isNaN(nb) ){
+            return a > b ? iv : -iv;
+        } else {
+            return -iv;
+        }
+    } else if ( isNaN(nb) ){
+        return iv;
+    } else {
+        return iv * (na - nb);
+    }
+};
+
+
 export {
     normalizeColor,
     replaceTokens,
     getActualNameWithoutTokens,
     getDecimalsForValue,
-    getItemBasedOnThreshold
+    getItemBasedOnThreshold,
+    boomSortFunc
 };

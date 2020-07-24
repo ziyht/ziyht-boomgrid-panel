@@ -4,7 +4,7 @@ import kbn from 'app/core/utils/kbn';
 import TimeSeries from "app/core/time_series2";
 import _ from "lodash";
 import { IBoomSeries, replaceTokens, getActualNameWithoutTokens, getDecimalsForValue, getItemBasedOnThreshold, normalizeColor, BoomPattern, IBoomCellDetails } from "./index";
-import { BoomPatternDatas } from './BoomPatternData';
+import { BoomDriver } from './BoomDriver';
 import { IBoomFilteredThreshold, IBoomCustomParsingValue } from './Boom.interface';
 
 const get_formatted_value = function (value, decimals, format): string {
@@ -23,7 +23,7 @@ class BoomSeries implements IBoomSeries {
     private row_col_wrapper: string;
     private decimals: Number;
     private custom_values: {[key: string]: string};
-    public pattern: BoomPattern;
+    private pattern: BoomPattern;
     public col_name: string;
     public row_name: string;
     public row_name_raw: string;
@@ -39,7 +39,7 @@ class BoomSeries implements IBoomSeries {
     public link = "-";
     public thresholds: Number[];
     public hidden: Boolean;
-    constructor(seriesData: any, panel: any, patternDatas: BoomPatternDatas , options: any, templateSrv: any, timeSrv: any) {
+    constructor(seriesData: any, panel: any, driver: BoomDriver , options: any, templateSrv: any, timeSrv: any) {
         let nullPointMode       = options && options.nullPointMode ? options.nullPointMode : "connected";
         let panelDefaultPattern = panel.defaultPattern;
         let panelPatterns       = panel.patterns;
@@ -67,8 +67,8 @@ class BoomSeries implements IBoomSeries {
         }
         this.pattern = _.find(panelPatterns.filter(p => { return p.disabled !== true; }), p => this.seriesName.match(p.pattern)) || panelDefaultPattern;
         this.pattern_id = this.pattern.id;
+        driver.getPatternData(this.pattern.id).addSeries(this);
         // console.log( this.pattern );
-        patternDatas.registerPattern(this.pattern).addSeries(this);
         this.decimals = this.pattern.decimals || panelDefaultPattern.decimals || 2;
         if (series.stats) {
             if (this.pattern.valueName === "last_time") {

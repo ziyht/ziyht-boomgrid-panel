@@ -1,19 +1,16 @@
 import _ from "lodash";
 import { IBoomHTML, IBoomTable, IBoomRenderingOptions, IBoomSeries } from "./index";
-import { getActualNameWithoutTokens } from "./BoomUtils";
+import { getActualNameWithoutTokens, boomSortFunc } from "./BoomUtils";
 import { IBoomCellDetails } from "./Boom.interface";
 
-export class BoomOutput {
+export class BoomRender {
   public default_title_for_rows: String;
   public hide_first_column: Boolean;
   public hide_headers: Boolean;
   public text_alignment_firstcolumn: String;
   public text_alignment_values: String;
   public first_column_link: String;
-  public table_unit_height_str: string;
-  public table_unit_width_str: string;
-  public table_unit_padding_str: string;
-  public unit_style_ext: string;
+  public table_unit_style: string;
   public getDataAsHTML;
   public getDataAsDebugHTML;
   constructor(options: IBoomRenderingOptions) {
@@ -23,14 +20,15 @@ export class BoomOutput {
     this.text_alignment_firstcolumn = options.text_alignment_firstcolumn || "";
     this.text_alignment_values = options.text_alignment_values || "";
     this.first_column_link = options.first_column_link || "#";
-    this.table_unit_height_str  = options.table_unit_height  > -1 ? 'height:'  + options.table_unit_height  + 'px' : '';
-    this.table_unit_width_str   = options.table_unit_width   > -1 ? 'width:'   + options.table_unit_width   + 'px' : '';
-    this.table_unit_padding_str = options.table_unit_padding > -1 ? 'padding:' + options.table_unit_padding + 'px' : ';padding:4px';
-    this.unit_style_ext = this.table_unit_padding_str + ";" + this.table_unit_width_str + ";" + this.table_unit_height_str;
-    console.log(this.unit_style_ext);
+    this.table_unit_style  = options.table_styles.body_unit_height_style +
+                             options.table_styles.body_unit_width_style  +
+                             options.table_styles.body_unit_padding_style+
+                             options.table_styles.body_font_style;
+
+    console.log(this.table_unit_style);
   }
 }
-BoomOutput.prototype.getDataAsHTML = function (data: IBoomTable, sorting_props): IBoomHTML {
+BoomRender.prototype.getDataAsHTML = function (data: IBoomTable, sorting_props): IBoomHTML {
   let getLinkifiedColumn = function (rowName: string, first_column_link: string, raw_rowName: string): string {
     if (first_column_link !== "#") {
       first_column_link = first_column_link.replace(new RegExp("_row_name_", "g"), getActualNameWithoutTokens(raw_rowName).trim());
@@ -55,19 +53,8 @@ BoomOutput.prototype.getDataAsHTML = function (data: IBoomTable, sorting_props):
         .concat(data.row_col_cells.filter(a => isNaN(a[sorting_props.col_index].value)))
         .sort((a, b) => sortFunction(a, b, sorting_props.direction));
     } else if (sorting_props.col_index === -1) {
-      let sortFunction = (a: IBoomCellDetails[], b: IBoomCellDetails[], sortMethod) => {
-        let na = Number(a[0].row_name);
-        let nb = Number(b[0].row_name);
-        let iv = sortMethod === "asc" ? 1 : -1;
-        if (isNaN(na) && isNaN(nb)){
-          return a[0].row_name > b[0].row_name ? iv : -iv;
-        } else if (isNaN(na)) {
-          return -iv;
-        } else if (isNaN(nb)) {
-          return iv;
-        } else {
-          return iv * (na - nb);
-        }
+      let sortFunction = (a: IBoomCellDetails[], b: IBoomCellDetails[], sortMethod: string) => {
+        return boomSortFunc(a[0].row_name, b[0].row_name, sortMethod);
       };
       data.row_col_cells = data.row_col_cells.sort((a, b) => sortFunction(a, b, sorting_props.direction));
     }
@@ -78,7 +65,7 @@ BoomOutput.prototype.getDataAsHTML = function (data: IBoomTable, sorting_props):
       if (this.hide_first_column !== true) {
         let raw_rowName = (_.first(o.map(item => item.row_name_raw)));
         output.body += `
-                    <td style="${this.unit_style_ext};text-align:${this.text_alignment_firstcolumn}">
+                    <td style="${this.table_unit_style};text-align:${this.text_alignment_firstcolumn}">
                         ${getLinkifiedColumn(_.first(o.map(item => item.row_name)), String(this.first_column_link), raw_rowName)}
                     </td>`;
       }
@@ -87,7 +74,7 @@ BoomOutput.prototype.getDataAsHTML = function (data: IBoomTable, sorting_props):
           if (item.display_value === undefined){
             item.display_value = "-";
           }
-          let item_style = `${this.unit_style_ext};background-color:${item.color_bg};color:${
+          let item_style = `${this.table_unit_style};background-color:${item.color_bg};color:${
             item.color_text
             };text-align:${this.text_alignment_values}`;
           let item_display = (item.link === "#") ? item.display_value
@@ -95,11 +82,11 @@ BoomOutput.prototype.getDataAsHTML = function (data: IBoomTable, sorting_props):
           let tooltip = (!item.tooltip || item.tooltip === "-") ? undefined
               : ` data-toggle="tooltip" data-html="true" data-placement="top" title="${
                 item.tooltip.replace(/\"/g, '&#34;')
-              }" `;
+              }" style="display:block;width:100%;height:100%;"`;
           output.body += `
-                      <td style="${item_style} ${tooltip}">
+                      <td style="${item_style}">
                           ${tooltip ? `<span ${tooltip}>` : ""}
-                              ${item_display ? `${item_display}` : "&nbsp"}
+                              ${item_display ? `${item_display}` : ""}
                           ${tooltip ? `</span>` : ""}
                       </td>
                   `;
@@ -111,7 +98,7 @@ BoomOutput.prototype.getDataAsHTML = function (data: IBoomTable, sorting_props):
   // console.log( "html: ", output.body );
   return output;
 };
-BoomOutput.prototype.getDataAsDebugHTML = function (data: IBoomSeries[]): string {
+BoomRender.prototype.getDataAsDebugHTML = function (data: IBoomSeries[]): string {
   let debugdata = ``;
   debugdata = _.map(data, d => {
     return `

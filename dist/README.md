@@ -1,17 +1,22 @@
-# Boom Table Panel for Grafana
+# Boom Grid Panel for Grafana
 
+rebuild from [yesoreyeram-boomtable-panel]()
 
-[![CircleCI](https://circleci.com/gh/yesoreyeram/yesoreyeram-boomtable-panel.svg?style=svg)](https://circleci.com/gh/yesoreyeram/yesoreyeram-boomtable-panel)
+New Added Features :
+--------------------
+* Support multi data in one table unit
+* Support fixed rows and fixed columns
+* Support custom value parsing and use in tooltip
+* Can hide columns 
+* Support multi filter thresholds for each pattern
+* Support unit size adjust
 
-Boom Table Panel for Grafana. Table/MultiStat plugin with multiple columns for Graphite, InfluxDB, Prometheus, Azure Monitor.
+Todo :
+-----------
+* data join
 
-![Boom Table - Sample Panel](https://raw.githubusercontent.com/yesoreyeram/yesoreyeram-boomtable-panel/master/dist/src/img/panel.png)
-
-![Boom Table - Panel with Font Awesome icons](https://raw.githubusercontent.com/yesoreyeram/yesoreyeram-boomtable-panel/master/dist/src/img/panels-fa.png)
-
-
-Features :
-----------
+Features From yesoreyeram-boomtable-panel:
+------------------------------------------
 
 * Multi column support for graphite, InfluxDB, Prometheus & Azure Monitor
 * Individual thresholds for cells based on pattern

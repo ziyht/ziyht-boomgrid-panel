@@ -3,7 +3,6 @@ interface IBoomPattern {
     bgColors_overrides: string;
     clickable_cells_link: string;
     col_name: string;
-    col_name_as_fixed_row: boolean;
     decimals: Number;
     delimiter: string;
     enable_bgColor: Boolean;
@@ -45,24 +44,59 @@ interface IBoomPattern {
     tooltipTemplate: string;
     valueName: string;
 }
+interface IBoomTableStyles{
+    // styles
+    header_unit_width_style: string;
+    header_unit_height_style: string;
+    header_unit_padding_style: string;
+    body_unit_width_style: string;
+    body_unit_height_style: string;
+    body_unit_padding_style: string;
+    width_style: string;
+    height_style: string;
+    header_font_style: string;
+    body_font_style: string;
+    // datas
+    header_unit_width: number;
+    header_unit_height: number;
+    header_unit_padding: number;
+    body_unit_width: number;
+    body_unit_height: number;
+    body_unit_padding: number;
+    width: number;
+    height: number;
+    columns: number;
+    rows: number;
+    head_font_size: string;
+    head_font_scale: number;
+    body_font_size: string;
+    body_font_scale: number;
+}
 interface IBoomPatternData {
     series:  IBoomSeries[];
     pattern: IBoomPattern;
 }
 interface IBoomFixedRow {
     name: string;
-    match: string;
-    sort_as: string;
 }
 interface IBoomFixedCol {
-    name: string;
-    sort_as: string;
-    show_as: string;
+    name:  string;
+    order: string;
+    show:  string;
+    bg_color: string;
+    text_color: string;
 }
 interface IBoomCustomParsingValue {
     label: string;
     get: string;
 }
+// interface IBoomJoin {
+//     match: string;
+// }
+// interface IBoomJoiner {
+//     joinby: string;
+//     joins: IBoomJoin[];
+// }
 interface IBoomSeries {
     col_name: string;
     color_bg: string;
@@ -100,9 +134,7 @@ interface IBoomRenderingOptions {
     text_alignment_firstcolumn: String;
     text_alignment_values: String;
     first_column_link: String;
-    table_unit_height: number;
-    table_unit_padding: number;
-    table_unit_width: number;
+    table_styles: IBoomTableStyles;
 }
 interface IBoomCellDetails {
     col_name: string;
@@ -130,6 +162,7 @@ export {
     IBoomTableTransformationOptions,
     IBoomRenderingOptions,
     IBoomCustomParsingValue,
+    IBoomTableStyles,
     IBoomFixedCol,
     IBoomFixedRow,
     IBoomPattern,

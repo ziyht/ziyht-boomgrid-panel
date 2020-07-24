@@ -3,18 +3,17 @@
 import _ from "lodash";
 import kbn from 'app/core/utils/kbn';
 import { loadPluginCss, MetricsPanelCtrl } from "app/plugins/sdk";
-import { IBoomRenderingOptions, IBoomTable, IBoomHTML, IBoomTableTransformationOptions } from "./app/boom/index";
-import { BoomPattern, BoomSeries, BoomOutput } from "./app/boom/index";
+import { BoomPattern, IBoomTableStyles } from "./app/boom/index";
 import { plugin_id, value_name_options, textAlignmentOptions, columnSortTypes, multiValueShowPriorities, config } from "./app/config";
-import { defaultPattern, seriesToTable, removeHiddenColFromTable, updateSortColIdxForTable } from "./app/app";
-import { BoomPatternDatas } from "./app/boom/BoomPatternData";
+import { defaultPattern } from "./app/app";
+import { BoomDriver } from "./app/boom/BoomDriver";
 
 loadPluginCss({
   dark: `plugins/${plugin_id}/css/default.dark.css`,
   light: `plugins/${plugin_id}/css/default.light.css`
 });
 
-class GrafanaBoomTableCtrl extends MetricsPanelCtrl {
+class GrafanaBoomGridCtrl extends MetricsPanelCtrl {
   public static templateUrl = "partials/module.html";
   public unitFormats = kbn.getUnitFormats();
   public valueNameOptions = value_name_options;
@@ -27,12 +26,12 @@ class GrafanaBoomTableCtrl extends MetricsPanelCtrl {
   public elem: any;
   public attrs: any;
   public $sce: any;
-  public patternDatas: BoomPatternDatas;
+  public driver: BoomDriver;
   constructor($scope, $injector, $sce) {
     super($scope, $injector);
     _.defaults(this.panel, config.panelDefaults);
-    this.patternDatas = new BoomPatternDatas();
     this.panel.defaultPattern = this.panel.defaultPattern || defaultPattern;
+    this.driver = new BoomDriver(this.panel);
     this.$sce = $sce;
     this.templateSrv = $injector.get("templateSrv");
     this.timeSrv = $injector.get("timeSrv");
@@ -156,62 +155,46 @@ class GrafanaBoomTableCtrl extends MetricsPanelCtrl {
   }
 }
 
-GrafanaBoomTableCtrl.prototype.render = function () {
-  this.patternDatas = new BoomPatternDatas();
-  this.patternDatas.registerPatterns(this.panel.defaultPattern, this.panel.patterns);
-  if (this.dataReceived) {
-    let outputdata: BoomSeries[] = this.dataReceived.map(seriesData => {
-      let seriesOptions = {
-        debug_mode:       this.panel.debug_mode,
-        row_col_wrapper:  this.panel.row_col_wrapper || "_"
-      };
-      // console.log( seriesData );
-      return new BoomSeries(seriesData, this.panel, this.patternDatas, seriesOptions, this.templateSrv, this.timeSrv);
-    });
-    console.log ( this.patternDatas );
-    let boomTableTransformationOptions: IBoomTableTransformationOptions = {
-      cols_sort_type:                 this.panel.cols_sort_type === columnSortTypes[1] ? columnSortTypes[1] : columnSortTypes[0],
-      non_matching_cells_color_bg:    this.panel.non_matching_cells_color_bg,
-      non_matching_cells_color_text:  this.panel.non_matching_cells_color_text,
-      non_matching_cells_text:        this.panel.non_matching_cells_text,
-    };
-    let boomtabledata: IBoomTable = seriesToTable(outputdata, boomTableTransformationOptions, this.patternDatas);
-    updateSortColIdxForTable(boomtabledata, this.panel.sorting_props);
-    console.log( boomtabledata );
-    removeHiddenColFromTable(boomtabledata, this.panel.sorting_props.hidden_cols);
-    let renderingOptions: IBoomRenderingOptions = {
-      default_title_for_rows:     this.panel.default_title_for_rows || config.default_title_for_rows,
-      first_column_link:          this.panel.first_column_link || "#",
-      hide_first_column:          this.panel.hide_first_column,
-      hide_headers:               this.panel.hide_headers,
-      table_unit_height:          this.panel.table_unit_height,
-      table_unit_padding:         this.panel.table_unit_padding,
-      table_unit_width:           this.panel.table_unit_width,
-      text_alignment_firstcolumn: this.panel.text_alignment_firstcolumn,
-      text_alignment_values:      this.panel.text_alignment_values,
-    };
-    let boom_output = new BoomOutput(renderingOptions);
-    this.outdata = {
-      cols_found: boomtabledata.cols_found.map(col => { return this.$sce.trustAsHtml(col); })
-    };
-    let renderingdata: IBoomHTML = boom_output.getDataAsHTML(boomtabledata, this.panel.sorting_props);
-    this.elem.find('#boomtable_output_body').html(`` + renderingdata.body);
-    this.elem.find('#boomtable_output_body_debug').html(this.panel.debug_mode ? boom_output.getDataAsDebugHTML(outputdata) : ``);
-    this.elem.find("[data-toggle='tooltip']").tooltip({
-      boundary: "scrollParent"
-    });
-    let rootElem = this.elem.find('.table-panel-scroll');
-    let originalHeight = this.ctrl.height;
-    if (isNaN(originalHeight)) {
-      if (this.ctrl && this.ctrl.elem && this.ctrl.elem[0] && this.ctrl.elem[0].clientHeight) {
-        originalHeight = this.ctrl.elem[0].clientHeight;
-      }
-    }
-    let maxheightofpanel = this.panel.debug_mode ? originalHeight - 111 : originalHeight - 31;
-    rootElem.css({ 'max-height': maxheightofpanel + "px" });
+GrafanaBoomGridCtrl.prototype.render = function () {
+  if (!this.dataReceived){
+    return;
   }
+  this.driver = new BoomDriver(this);
+  let driver = this.driver;
+
+  // prepare datas
+  driver.registerPatterns();
+  driver.feedSeries(this.dataReceived);
+  driver.genTableData();
+  driver.renderHtml();
+  console.log ( driver );
+
+  let style: IBoomTableStyles = driver.tb_styles!;
+  this.outdata = {
+    header_unit_styles: style.header_font_style + style.header_unit_width_style + style.header_unit_height_style + style.body_unit_padding_style,
+    show_cols: driver.getShowColumns(),
+    table_width: style.width_style,
+  };
+  this.elem.find('#boomtable_output_body').html(`` + driver.boomHtml!.body);
+  this.elem.find('#boomtable_output_body_debug').html(driver.boomHtmld!.body);
+  this.elem.find("[data-toggle='tooltip']").tooltip({
+    boundary: "scrollParent"
+  });
+
+  let rootElem = this.elem.find('.table-panel-scroll');
+  let originalHeight = this.ctrl.height;
+  if (isNaN(originalHeight)) {
+    if (this.ctrl && this.ctrl.elem && this.ctrl.elem[0] && this.ctrl.elem[0].clientHeight) {
+      originalHeight = this.ctrl.elem[0].clientHeight;
+    }
+  }
+  let maxheightofpanel = this.panel.debug_mode ? originalHeight - 111 : originalHeight - 31;
+  rootElem.css({ 'max-height': maxheightofpanel + "px" , 'font-family': '宋体'});
+
+
+  console.log( this.ctrl.height, this.ctrl.width, this.outdata.width );
 };
 
 export {
-  GrafanaBoomTableCtrl as PanelCtrl
+  GrafanaBoomGridCtrl as PanelCtrl
 };
