@@ -133,6 +133,40 @@
                     </div>
                 </div>
             </div>
+            <div class="editor-row" id="boom-editor-pattern-join">
+                <div class="section gf-form-group">
+                    <div class="gr-form-inline">
+                        <div class="gf-form">
+                            <h6 class="text-header">Join</h6>
+                        </div>
+                    </div>
+                    <div class="gr-form-inline">
+                        <div class="gf-form">
+                            <label class="gf-form-label width-8">main</label>
+                            <input type="text" placeholder="" class="gf-form-input width-8" ng-model="pattern.data_joins.main"
+                                bs-tooltip="'main metrics filter in regex'" data-ng-if="ctrl.panel.activePatternIndex < ctrl.panel.patterns.length">
+                            <span class="split"></span>
+                            <label class="gf-form-label width-8">joins</label>
+                            <input type="text" placeholder="" class="gf-form-input width-8" ng-model="pattern.data_joins.join"
+                                bs-tooltip="'join metrics filter in regex'" ng-blur="ctrl.render()">
+                            <span class="split"></span>
+                            <label class="gf-form-label width-8">joinby</label>
+                            <select class="gf-form-input width-4" ng-model="pattern.data_joins.joinby" ng-options="f.value as f.text for f in ctrl.getPatternData(pattern).joinbyOptions"
+                                ng-change="ctrl.render()"></select>
+                        </div>
+                    </div>
+                    <div class="gr-form-inline">
+                        <div class="gf-form">
+                            <label class="gf-form-label width-8">sample</label>
+                        </div>
+                    </div>
+                    <div class="gr-form-inline">
+                        <div class="gf-form">
+                            <p class="text">{{ctrl.getPatternData(pattern).joinSampleValues}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="editor-row" id="boom-editor-pattern-grid-pattern">
                 <div class="section gf-form-group">
                     <div class="gr-form-inline">

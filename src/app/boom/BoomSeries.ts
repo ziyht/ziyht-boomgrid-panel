@@ -1,11 +1,11 @@
 ///<reference path="../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 
 import kbn from 'app/core/utils/kbn';
-import TimeSeries from "app/core/time_series2";
+// import TimeSeries from "app/core/time_series2";
 import _ from "lodash";
 import { IBoomSeries, replaceTokens, getActualNameWithoutTokens, getDecimalsForValue, getItemBasedOnThreshold, normalizeColor, BoomPattern, IBoomCellDetails } from "./index";
-import { BoomDriver } from './BoomDriver';
 import { IBoomFilteredThreshold, IBoomCustomParsingValue } from './Boom.interface';
+import { IBoomJoinMeta, IBoomJoinSeries } from "./Boom.interface";
 
 const get_formatted_value = function (value, decimals, format): string {
     let decimalInfo: any = getDecimalsForValue(value, decimals);
@@ -39,10 +39,10 @@ class BoomSeries implements IBoomSeries {
     public link = "-";
     public thresholds: Number[];
     public hidden: Boolean;
-    constructor(seriesData: any, panel: any, driver: BoomDriver , options: any, templateSrv: any, timeSrv: any) {
-        let nullPointMode       = options && options.nullPointMode ? options.nullPointMode : "connected";
+    public seriesNames: string[];
+    constructor(seriesData: IBoomJoinSeries, panel: any, pattern: BoomPattern , options: any, templateSrv: any, timeSrv: any) {
+        // let nullPointMode       = options && options.nullPointMode ? options.nullPointMode : "connected";
         let panelDefaultPattern = panel.defaultPattern;
-        let panelPatterns       = panel.patterns;
         let scopedVars          = panel.scopedVars;
         this.custom_values      = {};
         this.debug_mode         = options && options.debug_mode === true ? true : false;
@@ -55,34 +55,32 @@ class BoomSeries implements IBoomSeries {
         this.pattern_id         = -1;
         this.color_bg_id        = 0;
         this.color_text_id      = 0;
-        let series              = new TimeSeries({
-            alias: seriesData.target,
-            datapoints: seriesData.datapoints || []
-        });
-        series.flotpairs        = series.getFlotPairs(nullPointMode);
-        this.seriesName         = series.alias || series.aliasEscaped || series.label || series.id;
-        this.currentTimeStamp   = new Date();
-        if (series.dataPoints && series.dataPoints.length > 0 && _.last(series.dataPoints).length === 2) {
-            this.currentTimeStamp = new Date(_.last(series.dataPoints)[1]);
+        this.pattern            = pattern;
+        this.pattern_id         = pattern.id;
+
+        // let series              = new TimeSeries({
+        //     alias: seriesData.target,
+        //     datapoints: seriesData.datapoints || []
+        // });
+        // series.flotpairs        = series.getFlotPairs(nullPointMode);
+        // this.seriesName         = series.alias || series.aliasEscaped || series.label || series.id || "";
+        // if (series.dataPoints && series.dataPoints.length > 0 && _.last(series.dataPoints).length === 2) {
+        //     this.currentTimeStamp = new Date(_.last(series.dataPoints)[1]);
+        // } else {
+        //     this.currentTimeStamp   = new Date();
+        // }
+
+        let meta0: IBoomJoinMeta = seriesData.metas[0];
+        this.seriesName = meta0.alias;
+        if (meta0.dataPoints && meta0.dataPoints.length > 0 && _.last(meta0.dataPoints).length === 2) {
+            this.currentTimeStamp = new Date(_.last(meta0.dataPoints)[1]);
+        } else {
+            this.currentTimeStamp   = new Date();
         }
-        this.pattern = _.find(panelPatterns.filter(p => { return p.disabled !== true; }), p => this.seriesName.match(p.pattern)) || panelDefaultPattern;
-        this.pattern_id = this.pattern.id;
-        driver.getPatternData(this.pattern.id).addSeries(this);
-        // console.log( this.pattern );
+        this.seriesNames = seriesData.splits;
         this.decimals = this.pattern.decimals || panelDefaultPattern.decimals || 2;
-        if (series.stats) {
-            if (this.pattern.valueName === "last_time") {
-                if (_.last(series.datapoints)) {
-                    this.value = _.last(series.datapoints)[1];
-                }
-            } else if (this.pattern.valueName === "last_time_nonnull") {
-                let non_null_data = series.datapoints.filter(s => s[0]);
-                if (_.last(non_null_data) && _.last(non_null_data)[1]) {
-                    this.value = _.last(non_null_data)[1];
-                }
-            } else {
-                this.value = series.stats[this.pattern.valueName];
-            }
+        if (meta0.stats) {
+            this.value = meta0.value;
             if (_.isNaN(this.value) || this.value === null) {
                 this.display_value = this.pattern.null_value;
             } else {
@@ -101,14 +99,14 @@ class BoomSeries implements IBoomSeries {
                 this.hidden = true;
             }
         }
-        this.row_name       = this.getRowName(this.pattern, this.row_col_wrapper, (this.seriesName || "").toString());
-        this.row_name_raw   = this.getRowName(this.pattern, this.row_col_wrapper, (this.seriesName || "").toString());
-        this.col_name       = this.getColName(this.pattern, this.row_col_wrapper, (this.seriesName || "").toString(), this.row_name);
+        this.row_name       = this.getRowName(this.pattern, this.row_col_wrapper);
+        this.row_name_raw   = this.row_name;
+        this.col_name       = this.getColName(this.pattern, this.row_col_wrapper, this.row_name);
         this.thresholds     = this.getThresholds(templateSrv, scopedVars);
         this.color_bg       = this.getBGColor(templateSrv, scopedVars);
         this.color_text     = this.getTextColor(templateSrv, scopedVars);
         this.template_value = this.getDisplayValueTemplate();
-        this.custom_values  = this.getParsingValues(this.pattern, this.row_col_wrapper, (this.seriesName || "").toString());
+        this.custom_values  = this.getParsingValues(this.pattern, this.row_col_wrapper);
         this.tooltip        = this.pattern.tooltipTemplate || "Series : _series_ <br/>Row Name : _row_name_ <br/>Col Name : _col_name_ <br/>Value : _value_";
         this.link           = this.pattern.enable_clickable_cells ? this.pattern.clickable_cells_link || "#" : "#";
         if (this.link !== "#") {
@@ -116,7 +114,7 @@ class BoomSeries implements IBoomSeries {
             this.link += (this.link.indexOf("?") > -1 ? `&from=${range.from}` : `?from=${range.from}`);
             this.link += `&to=${range.to}`;
         }
-        this.replaceTokens(templateSrv, scopedVars, series);
+        this.replaceTokens(templateSrv, scopedVars, meta0);
         this.cleanup();
     }
     private getThresholds(templateSrv: any, scopedVars: any) {
@@ -215,7 +213,7 @@ class BoomSeries implements IBoomSeries {
                 }
             }
             if (this.pattern.enable_transform || this.pattern.enable_transform_overrides) {
-                template = this.seriesName.split(this.pattern.delimiter || ".").reduce((r, it, i) => {
+                template = this.seriesNames.reduce((r, it, i) => {
                     return r.replace(new RegExp(this.row_col_wrapper + i + this.row_col_wrapper, "g"), it);
                 }, template);
             }
@@ -225,6 +223,7 @@ class BoomSeries implements IBoomSeries {
     private cleanup() {
         if (this.debug_mode !== true) {
             delete this.seriesName;
+            delete this.seriesNames;
             delete this.pattern;
             delete this.thresholds;
             delete this.decimals;
@@ -235,44 +234,44 @@ class BoomSeries implements IBoomSeries {
             delete this.currentTimeStamp;
         }
     }
-    private getRowName(pattern, row_col_wrapper: string, seriesName: string): string {
+    private getRowName(pattern, row_col_wrapper: string): string {
         let row_name = pattern.row_name;
-        row_name = seriesName.split(pattern.delimiter || ".").reduce((r, it, i) => {
+        row_name = this.seriesNames.reduce((r, it, i) => {
             return r.replace(new RegExp(row_col_wrapper + i + row_col_wrapper, "g"), it);
         }, row_name);
-        if (seriesName.split(pattern.delimiter || ".").length === 1) {
-            row_name = seriesName;
+        if (this.seriesNames.length === 1) {
+            row_name = this.seriesName;
         }
         this.template_row_name = row_name;
         return row_name;
     }
-    private getColName(pattern, row_col_wrapper: string, seriesName: string, row_name: string): string {
+    private getColName(pattern, row_col_wrapper: string, row_name: string): string {
         let col_name = pattern.col_name;
-        col_name = seriesName.split(pattern.delimiter || ".").reduce((r, it, i) => {
+        col_name = this.seriesNames.reduce((r, it, i) => {
             return r.replace(new RegExp(row_col_wrapper + i + row_col_wrapper, "g"), it);
         }, col_name);
-        if (seriesName.split(pattern.delimiter || ".").length === 1 || row_name === seriesName) {
+        if (this.seriesNames.length === 1 || row_name === this.seriesName) {
             col_name = pattern.col_name || "Value";
         }
         this.template_col_name = col_name;
         return col_name;
     }
-    private getParsingValues(pattern: BoomPattern, row_col_wrapper: string, seriesName: string): {[key: string]: string}{
+    private getParsingValues(pattern: BoomPattern, row_col_wrapper: string): {[key: string]: string}{
         let kvs: {[key: string]: string} = {};
         if (pattern.custom_parsing_values !== undefined){
             _.each(pattern.custom_parsing_values, (pv: IBoomCustomParsingValue) => {
                 if (pv.label === "" || pv.get === ""){
                     return;}
-                kvs[pv.label] = seriesName.split(pattern.delimiter || ".").reduce((r, it, i) => {
+                kvs[pv.label] = this.seriesNames.reduce((r, it, i) => {
                     return r.replace(new RegExp(row_col_wrapper + i + row_col_wrapper, "g"), it);
                 }, pv.get);
             });
         }
         return kvs;
     }
-    private replaceTokens(templateSrv: any, scopedVars: any, series: any) {
+    private replaceTokens(templateSrv: any, scopedVars: any, series: IBoomJoinMeta) {
         // colnames can be specified in the link
-        this.link = this.seriesName.split(this.pattern.delimiter || ".").reduce((r, it, i) => {
+        this.link = this.seriesNames.reduce((r, it, i) => {
             return r.replace(new RegExp(this.row_col_wrapper + i + this.row_col_wrapper, "g"), it);
         }, this.link);
         // _series_ can be specified in Row, Col, Display Value, Tooltip & Link

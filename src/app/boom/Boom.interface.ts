@@ -25,6 +25,7 @@ interface IBoomPattern {
     fixed_rows: IBoomFixedRow[];
     fixed_cols: IBoomFixedCol[];
     custom_parsing_values: IBoomCustomParsingValue[];
+    data_joins: IBoomJoin | undefined;
     format: string;
     id: number;
     name: string;
@@ -73,7 +74,6 @@ interface IBoomTableStyles{
     body_font_scale: number;
 }
 interface IBoomPatternData {
-    series:  IBoomSeries[];
     pattern: IBoomPattern;
 }
 interface IBoomFixedRow {
@@ -90,13 +90,25 @@ interface IBoomCustomParsingValue {
     label: string;
     get: string;
 }
-// interface IBoomJoin {
-//     match: string;
-// }
-// interface IBoomJoiner {
-//     joinby: string;
-//     joins: IBoomJoin[];
-// }
+interface IBoomJoin {
+    main:  string;
+    join:  string;
+    joinby: string;
+}
+interface IBoomJoinMeta {
+    alias:  string;
+    key: string;
+    splits: string[];
+    dataPoints: any[];
+    stats: any;
+    err: string;
+    value: any;
+}
+interface IBoomJoinSeries {
+    alias: string;
+    splits: string[];
+    metas: IBoomJoinMeta[];
+}
 interface IBoomSeries {
     col_name: string;
     color_bg: string;
@@ -163,6 +175,9 @@ export {
     IBoomRenderingOptions,
     IBoomCustomParsingValue,
     IBoomTableStyles,
+    IBoomJoin,
+    IBoomJoinMeta,
+    IBoomJoinSeries,
     IBoomFixedCol,
     IBoomFixedRow,
     IBoomPattern,

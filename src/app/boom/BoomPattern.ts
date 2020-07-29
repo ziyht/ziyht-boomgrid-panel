@@ -1,5 +1,5 @@
 import { IBoomPattern, IBoomTimeBasedThreshold, BoomTimeBasedThreshold, IBoomFilteredThreshold, BoomFilteredThreshold } from "./index";
-import { IBoomFixedRow, IBoomFixedCol, IBoomCustomParsingValue } from "./Boom.interface";
+import { IBoomFixedRow, IBoomFixedCol, IBoomCustomParsingValue, IBoomJoin } from "./Boom.interface";
 
 class BoomFixedRow implements IBoomFixedRow {
     public name: string;
@@ -55,6 +55,7 @@ class BoomPattern implements IBoomPattern {
     public custom_parsing_values: IBoomCustomParsingValue[];
     public format: string;
     public id: number;
+    public data_joins: IBoomJoin;
     public name: string;
     public null_color: string;
     public null_value: string;
@@ -119,6 +120,11 @@ class BoomPattern implements IBoomPattern {
         this.filter = {
             value_above: "",
             value_below: "",
+        };
+        this.data_joins = {
+            join: "",
+            joinby: "",
+            main: "",
         };
         this.fixed_rows = [];
         this.fixed_cols = [];

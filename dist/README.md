@@ -4,12 +4,11 @@ rebuild from [yesoreyeram-boomtable-panel]()
 
 New Added Features :
 --------------------
-* Support multi data in one table unit
+* Support multi data in one unit
 * Support fixed rows and fixed columns
 * Support custom value parsing and use in tooltip
 * Can hide columns 
 * Support multi filter thresholds for each pattern
-* Support unit size adjust
 
 Todo :
 -----------

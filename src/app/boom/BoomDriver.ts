@@ -14,19 +14,34 @@ class BoomDriver {
     public panel:    any;
     public patterns: {[id: number]: BoomPatternData} = {};
     public columns:  {[name: string]: BoomFixedCol } = {};
-    public series:   any = [];                  // series from input query data
-    public boomSeries: BoomSeries[] = [];       // series witch parsed from input series
+    public inputs:   any = [];                    // series from input query data
+    public boomSeries: BoomSeries[] = [];         // series witch parsed from input series
     public boomTable:  IBoomTable   | undefined;  // data generated from boomSeries
     public boomRender: BoomRender   | undefined;  // render to rend boomTable to boomHtml
     public boomHtml:   IBoomHTML    | undefined;  // the output html result
     public boomHtmld:  IBoomHTML    | undefined;  // the output html result of debug
     public tb_styles: IBoomTableStyles | undefined;
+    public cost = "";
     constructor(ctrl: PanelCtrl){
-        this.ctrl  = ctrl;
-        this.panel = ctrl.panel;
+        this.ctrl   = ctrl;
+        this.panel  = ctrl.panel;
+        this.inputs = ctrl.dataReceived;
     }
 
-    public registerPatterns(){
+    public doProcessing(){
+        let start = new Date();
+
+        this._registerPatterns();
+        this._parsingInputs();
+        this._genTableData();
+        this._renderHtml();
+
+        let end = new Date();
+        let diffms = end.getTime() - start.getTime();
+        this.cost = "" + (diffms / 1000) + "s";
+    }
+
+    private _registerPatterns(){
         this.patterns = {};
         this.panel.defaultPattern.id = -1;
         this.registerPattern(this.panel.defaultPattern);
@@ -41,28 +56,36 @@ class BoomDriver {
     public registerPattern(pattern: BoomPattern): BoomPatternData {
         let data = this.patterns[pattern.id];
         if ( data === undefined ){
-            data = new BoomPatternData(pattern);
+            data = new BoomPatternData(pattern, this.ctrl);
             this.patterns[pattern.id] = data;
         }
         return data;
     }
 
-    public feedSeries(seriesData: any) {
-        this.series = seriesData;
-
-        // tslint:disable-next-line: no-shadowed-variable
-        this.boomSeries = this.series.map(seriesData => {
-            let seriesOptions = {
-              debug_mode:       this.panel.debug_mode,
-              row_col_wrapper:  this.panel.row_col_wrapper || "_"
-            };
-            return new BoomSeries(seriesData, this.panel, this, seriesOptions, this.ctrl.templateSrv, this.ctrl.timeSrv);
+    private _parsingInputs(){
+        if (!this.inputs){
+            return;
+        }
+        let patterns        = this.panel.patterns;
+        let defaultPattern  = this.panel.panelDefaultPattern;
+        this.inputs.map(input => {
+            let alias: string = input.target;
+            let pattern: BoomPattern = _.find(patterns.filter(p => { return p.disabled !== true; }), p => alias.match(p.pattern)) || defaultPattern;
+            this.getPatternData(pattern.id).addInput(input);
         });
+
+        let boomSeries: BoomSeries[] = [];
+        _.each(this.patterns, (pattern: BoomPatternData) =>{
+            pattern.joinData();
+            pattern.genBoomSeries();
+            boomSeries = boomSeries.concat(pattern.boomSeries);
+        });
+        this.boomSeries = boomSeries;
 
         this._addColumnsFromBoomSeries();
     }
 
-    public genTableData() {
+    private _genTableData() {
         let options: IBoomTableTransformationOptions = {
             cols_sort_type:                 this.panel.cols_sort_type === columnSortTypes[1] ? columnSortTypes[1] : columnSortTypes[0],
             non_matching_cells_color_bg:    this.panel.non_matching_cells_color_bg,
@@ -172,7 +195,7 @@ class BoomDriver {
         };
     }
 
-    public renderHtml() {
+    private _renderHtml() {
         this._validateTableStyles();
         let options: IBoomRenderingOptions = {
             default_title_for_rows:     this.panel.default_title_for_rows || config.default_title_for_rows,
@@ -332,9 +355,12 @@ class BoomDriver {
                         "tooltip": "-",
                         "value": NaN,
                     };
+                    cell.tooltip = `<div style="font-size:12px;color:${cell.color_bg};text-align:left">` + cell.tooltip + '</div>';
                     cols.push(cell);
                 } else if (matched_items && matched_items.length === 1) {
-                    cols.push(matched_items[0].toBoomCellDetails());
+                    let cell = matched_items[0].toBoomCellDetails();
+                    cell.tooltip = `<div style="font-size:12px;color:${cell.color_bg};text-align:left">` + cell.tooltip + '</div>';
+                    cols.push(cell);
                 } else if (matched_items && matched_items.length > 1) {
                     let item = matched_items[0];
                     let cell: IBoomCellDetails = {

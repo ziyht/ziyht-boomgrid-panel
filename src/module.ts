@@ -3,7 +3,7 @@
 import _ from "lodash";
 import kbn from 'app/core/utils/kbn';
 import { loadPluginCss, MetricsPanelCtrl } from "app/plugins/sdk";
-import { BoomPattern, IBoomTableStyles } from "./app/boom/index";
+import { BoomPattern, IBoomTableStyles, IBoomPattern, BoomPatternData } from "./app/boom/index";
 import { plugin_id, value_name_options, textAlignmentOptions, columnSortTypes, multiValueShowPriorities, config } from "./app/config";
 import { defaultPattern } from "./app/app";
 import { BoomDriver } from "./app/boom/BoomDriver";
@@ -31,7 +31,7 @@ class GrafanaBoomGridCtrl extends MetricsPanelCtrl {
     super($scope, $injector);
     _.defaults(this.panel, config.panelDefaults);
     this.panel.defaultPattern = this.panel.defaultPattern || defaultPattern;
-    this.driver = new BoomDriver(this.panel);
+    this.driver = new BoomDriver(this);
     this.$sce = $sce;
     this.templateSrv = $injector.get("templateSrv");
     this.timeSrv = $injector.get("timeSrv");
@@ -98,6 +98,9 @@ class GrafanaBoomGridCtrl extends MetricsPanelCtrl {
     console.log("sortByHeaderIndex: " + headerIndex + " in " + this.panel.sorting_props.direction);
     this.render();
   }
+  public getPatternData(pattern: IBoomPattern): BoomPatternData{
+    return this.driver.getPatternData(pattern.id);
+  }
   public genHiddelStr(){
     let str = '';
     _.each(this.panel.sorting_props.hidden_cols, item => {
@@ -162,11 +165,8 @@ GrafanaBoomGridCtrl.prototype.render = function () {
   this.driver = new BoomDriver(this);
   let driver = this.driver;
 
-  // prepare datas
-  driver.registerPatterns();
-  driver.feedSeries(this.dataReceived);
-  driver.genTableData();
-  driver.renderHtml();
+  driver.doProcessing();
+  console.log ( "cost: ", driver.cost);
   console.log ( driver );
 
   let style: IBoomTableStyles = driver.tb_styles!;
