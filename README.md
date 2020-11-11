@@ -9,10 +9,7 @@ New Added Features :
 * Support custom value parsing and use in tooltip
 * Can hide columns 
 * Support multi filter thresholds for each pattern
-
-Todo :
------------
-* data join
+* add a simple data join 
 
 Features From yesoreyeram-boomtable-panel:
 ------------------------------------------

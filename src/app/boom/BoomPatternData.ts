@@ -11,7 +11,7 @@ class BoomPatternData implements IBoomPatternData {
     public joinSeries: IBoomJoinSeries[] = [];
     public joinMetas: IBoomJoinMeta[] = [];
     public joinMetasDiscarded: IBoomJoinMeta[] = [];
-    public joinMetasMains:   {[key: string]: IBoomJoinMeta} = {};
+    public joinMetasMains:     IBoomJoinMeta[] = [];
     public joinMetasToJoins: {[key: string]: IBoomJoinMeta} = {};
     public joinbyOptions: {}[] = [{'value': '-1', 'text': '-1'}];
     public joinSampleValues = "";
@@ -85,8 +85,9 @@ class BoomPatternData implements IBoomPatternData {
         }
 
         // classify now
-        let mains: {[key: string]: IBoomJoinMeta} = {};
+        let mains: IBoomJoinMeta[] = [];
         let tojoins: {[key: string]: IBoomJoinMeta} = {};
+        let discarded: IBoomJoinMeta[] = [];
         let joinArrs: IBoomJoinMeta[][] = [];
         if (main === "" || join === "" || joinby < 0) {
             _.each(this.joinMetas, meta => {
@@ -96,11 +97,7 @@ class BoomPatternData implements IBoomPatternData {
             _.each(this.joinMetas, (meta: IBoomJoinMeta) => {
                 meta.key = meta.splits[joinby];
                 if (meta.alias.match(main)){
-                    if ( mains[meta.key] !== undefined ) {
-                        meta.err = "key " + meta.key + "already exist in mains";
-                    } else {
-                        mains[meta.key] = meta;
-                    }
+                    mains.push(meta);
                 } else if (meta.alias.match(join)){
                     if ( tojoins[meta.key] !== undefined ) {
                         meta.err = "key " + meta.key + "already exist in tojoins";
@@ -109,7 +106,10 @@ class BoomPatternData implements IBoomPatternData {
                     }
                 } else {
                     meta.err = "alias not match '" + main + "' and '" + join + "'";
-                    this.joinMetasDiscarded.push(meta);
+                }
+
+                if (meta.err !== ""){
+                    discarded.push(meta);
                 }
             });
 
@@ -118,7 +118,7 @@ class BoomPatternData implements IBoomPatternData {
 
                 if (meta2 === undefined){
                     meta1.err = "can not found match metric for key '" + meta1.key + "' in tojoins";
-                    this.joinMetasDiscarded.push(meta1);
+                    discarded.push(meta1);
                     return;
                 }
 
@@ -127,6 +127,7 @@ class BoomPatternData implements IBoomPatternData {
         }
         this.joinMetasMains = mains;
         this.joinMetasToJoins = tojoins;
+        this.joinMetasDiscarded = discarded;
 
         // join data
         _.each(joinArrs, (arr: IBoomJoinMeta[]) => {
